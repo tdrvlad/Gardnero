@@ -30,6 +30,15 @@ def execute_pump(pump):
     execute_gpio(gpio_map.get(pump), 10)  
   
 
+def stop_gpio(gpio_pin):
+    GPIO.output(gpio_pin, GPIO.HIGH)
+
+def gpio_output_setup(gpio_pin):
+    GPIO.setup(gpio_pin, GPIO.OUT)
+
+def gpio_input_setup(gpio_pin):
+    GPIO.setup(gpio_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
 def execute_gpio(gpio_pin, exec_time):
 
     print('Executing GPIO pin {} for {} seconds.'.format(gpio_pin, exec_time))
@@ -43,16 +52,6 @@ def execute_gpio(gpio_pin, exec_time):
     GPIO.output(gpio_map.get('power'), GPIO.HIGH)
     time.sleep(2)
     print('Finished execution of GPIO pin {}.'.format(gpio_pin))
-
-def stop_gpio(gpio_pin):
-    GPIO.output(gpio_pin, GPIO.HIGH)
-
-def gpio_output_setup(gpio_pin):
-    GPIO.setup(gpio_pin, GPIO.OUT)
-
-def gpio_input_setup(gpio_pin):
-    GPIO.setup(gpio_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
 
 power_pin = gpio_map.get('power')
 if power_pin is None:
