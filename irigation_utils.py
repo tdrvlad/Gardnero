@@ -1,37 +1,25 @@
-import RPi.GPIO as GPIO
-import time
+import logging, yaml, time
+try:
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(False)
+    logging.info('Succesfully initialized GPIO library.')
+    INIT_GPIO = True
+except:
+    logging.warning('Failed to initialize GPIO library.')
+    INIT_GPIO = False
 
 seconds_in_day = 3600 * 24
 
-gpio_map = {
-    'power': 21,
-    'tank1': 20,
-    'tank2': 24,
-    'tank3': 23,
-    'tank4': 22,
-    'tank5': 27,
-    'aux1': 17,
-    'aux2': 4,
-    'button_in': 26,
-    'led1': 19,
-    'led2': 13,
-    'led3': 6
-}
+with open(r'resources/GPIO_MAP.yaml') as file:
+    GPIO_MAP = yaml.load(file)
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-
-
-def execute_pump(pump):
-
-    gpio_output_setup(gpio_map.get(pump))
-    gpio_output_setup(gpio_map.get('power'))    
-
-    execute_gpio(gpio_map.get(pump), 10)  
-  
 
 def stop_gpio(gpio_pin):
-    GPIO.output(gpio_pin, GPIO.HIGH)
+    if INIT_GPIO:
+        GPIO.output(gpio_pin, GPIO.HIGH)
+    else:
+        logging.info(f'Stopping GPIO pin {gpio_pin}')
 
 def gpio_output_setup(gpio_pin):
     GPIO.setup(gpio_pin, GPIO.OUT)
@@ -42,18 +30,18 @@ def gpio_input_setup(gpio_pin):
 def execute_gpio(gpio_pin, exec_time):
 
     print('Executing GPIO pin {} for {} seconds.'.format(gpio_pin, exec_time))
-    GPIO.output(gpio_map.get('power'), GPIO.LOW)
+    GPIO.output(GPIO_MAP.get('power'), GPIO.LOW)
     time.sleep(1)
     GPIO.output(gpio_pin, GPIO.LOW)
     time.sleep(exec_time)
 
     GPIO.output(gpio_pin, GPIO.HIGH)
     time.sleep(1)
-    GPIO.output(gpio_map.get('power'), GPIO.HIGH)
+    GPIO.output(GPIO_MAP.get('power'), GPIO.HIGH)
     time.sleep(2)
     print('Finished execution of GPIO pin {}.'.format(gpio_pin))
 
-power_pin = gpio_map.get('power')
+power_pin = GPIO_MAP.get('power')
 if power_pin is None:
     print('Power Relay not found in wiring.')
 else:
@@ -63,7 +51,7 @@ else:
 
 class Circuit:
     def __init__(self, pump, time, days_period, description=None):
-        gpio_pin = gpio_map.get(pump)
+        gpio_pin = GPIO_MAP.get(pump)
         if gpio_pin is None:
             print('Pump not found in wiring.')
         else:
@@ -137,7 +125,7 @@ class Button:
 
     def __init__(self, action_triggers, handler):
         
-        gpio_pin = gpio_map.get('button_in')
+        gpio_pin = GPIO_MAP.get('button_in')
         if gpio_pin is None:
             print('Button not found in wiring.')
         else:
@@ -184,9 +172,9 @@ class Button:
 class LEDs:
 
     def __init__(self, handler):
-        led1_pin = gpio_map.get('led1')
-        led2_pin = gpio_map.get('led2')
-        led3_pin = gpio_map.get('led3')
+        led1_pin = GPIO_MAP.get('led1')
+        led2_pin = GPIO_MAP.get('led2')
+        led3_pin = GPIO_MAP.get('led3')
 
         if led1_pin is None or led2_pin is None or led3_pin is None:
             print('LEDs wiring not found.')

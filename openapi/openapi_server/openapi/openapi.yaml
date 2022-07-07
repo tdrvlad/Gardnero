@@ -1,0 +1,107 @@
+openapi: 3.0.0
+info:
+  contact:
+    email: vlad.tudor@sapio.ro
+  description: Application for running GPIO tasks.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  title: Gardnero
+  version: 1.0.0
+servers:
+- url: /
+paths:
+  /circuits:
+    get:
+      description: "Retrieve the current Circuits configuration [CircuitId, DaysPeriod,\
+        \ ExecutionTime]."
+      operationId: get_circuits
+      responses:
+        "200":
+          content:
+            application/yaml:
+              schema:
+                items:
+                  $ref: '#/components/schemas/inline_response_200'
+                type: array
+          description: Response.
+        "400":
+          description: Invalid operation
+      x-openapi-router-controller: controller
+  /configureCircuit:
+    post:
+      description: Configure the time period
+      operationId: config_circuit
+      parameters:
+      - description: Circuit ID.
+        explode: false
+        in: query
+        name: circuitId
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: Number of days between execution.
+        explode: false
+        in: query
+        name: daysPeriod
+        required: true
+        schema:
+          type: number
+        style: form
+      - description: Duration for the Circuit execution in seconds.
+        explode: false
+        in: query
+        name: executionTime
+        required: true
+        schema:
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/yaml:
+              schema:
+                type: string
+          description: Response.
+        "400":
+          description: Invalid operation
+      x-openapi-router-controller: controller
+  /startCircuit:
+    post:
+      description: Trigger the execution of a Circuit
+      operationId: start_circuit
+      parameters:
+      - description: Circuit ID.
+        explode: false
+        in: query
+        name: circuitlId
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/yaml:
+              schema:
+                type: string
+          description: Response.
+        "400":
+          description: Invalid operation
+      x-openapi-router-controller: controller
+components:
+  schemas:
+    inline_response_200:
+      properties:
+        circuitId:
+          title: circuitId
+          type: string
+        daysPeriod:
+          title: daysPeriod
+          type: number
+        executionTime:
+          title: executionTime
+          type: integer
+      title: inline_response_200
+      type: object
