@@ -22,3 +22,9 @@ New endpoints must be added in `controller.py`. Dummy endpoint functions are fou
 pip3 install -r openapi/requirements.txt 
 pip3 install -r resources/requirements.txt
 ```
+## Add comand to boot
+```commandline
+crontab -e
+@reboot python3 /home/pi/Gardnero/main.py
+
+```
