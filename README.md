@@ -1,30 +1,33 @@
 # Gardnero
 Application for automatic watering of plants on a RaspberryPi
-
-
 <p align="left">
-  <img width="460"src="wiring/gardnero_wiring.png">
+  <img width="460"src="docs/gardnero_wiring.png">
 </p>
 
 
-
-## Development Instructions
-
-### OpenAPI
-Modify the contents of `resources/schema.yaml` accordingly. Afterwards re-generate the Flask server code by running:
-```
-./cmd_generate_openapi.sh
-```
-New endpoints must be added in `controller.py`. Dummy endpoint functions are found at `openapi/openapi_server/controllers/default_controller.py` after re-generating the server code.
-
-### Install requirements
-```
-pip3 install -r openapi/requirements.txt 
+## Setup 
+Install dependencies
+``` 
 pip3 install -r resources/requirements.txt
 ```
-## Add comand to boot
-```commandline
-crontab -e
-@reboot python3 /home/pi/Gardnero/main.py
-
+Start the service:
 ```
+./start.sh
+```
+
+## Execute command at boot
+Open the crontab jobs:
+```
+crontab -e
+```
+Add the line:
+```
+@reboot /home/pi/Gardnero/start.sh 2>&1 | /usr/bin/logger -t CRONOUTPUT
+```
+Afterwards, to inspect logs:
+```
+cat /var/log/syslog | grep CRONOUTPUT
+```
+
+## Electrical Wiring
+Make sure the electrical wiring of the RaspberryPi ports is well defined at `resources/gpio_map.yaml`.
