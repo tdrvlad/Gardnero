@@ -1,25 +1,22 @@
 import logging, yaml, time
 try:
     import RPi.GPIO as GPIO
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setwarnings(False)
-    logging.info('Succesfully initialized GPIO library.')
-    INIT_GPIO = True
+    logging.info(*'Initialized RPi.GPIO library.')
 except:
-    logging.warning('Failed to initialize GPIO library.')
-    INIT_GPIO = False
+    import Mock.GPIO as GPIO
+    logging.info(*'Initialized MOCK GPIO library.')
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
 
 seconds_in_day = 3600 * 24
 
-with open(r'resources/GPIO_MAP.yaml') as file:
-    GPIO_MAP = yaml.load(file)
+with open(r'resources/gpio_map.yaml') as file:
+    GPIO_MAP = yaml.safe_load(file)
 
 
 def stop_gpio(gpio_pin):
-    if INIT_GPIO:
-        GPIO.output(gpio_pin, GPIO.HIGH)
-    else:
-        logging.info(f'Stopping GPIO pin {gpio_pin}')
+    GPIO.output(gpio_pin, GPIO.HIGH)
 
 def gpio_output_setup(gpio_pin):
     GPIO.setup(gpio_pin, GPIO.OUT)
