@@ -23,9 +23,11 @@ def gpio_input_setup(gpio_pin):
     GPIO.setup(gpio_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 def activate_gpio(gpio_pin):
+    print(f'Activate pin {gpio_pin}')
     GPIO.output(gpio_pin, GPIO.LOW)
 
 def deactivate_gpio(gpio_pin):
+    print(f'Deactivate pin {gpio_pin}')
     GPIO.output(gpio_pin, GPIO.HIGH)
 
 
@@ -36,6 +38,7 @@ class GPIOHandler:
         self.gpio_map_file = gpio_map_file
         with open(self.gpio_map_file, 'r') as f:
             self.gpio_map = yaml.safe_load(f)
+        self.setup()
 
     def setup(self):
         for name, pin in self.gpio_map.items():
