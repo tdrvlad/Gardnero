@@ -31,6 +31,10 @@ def server(circuit_scheduler: CircuitScheduler):
     async def get_circuit(circuit_name:str):
         return circuit_scheduler.get_circuit(circuit_name)
 
+    @app.get("/circuit/{circuit_name}/time_until_next_run")
+    async def get_circuit(circuit_name: str):
+        return circuit_scheduler.get_circuit_time_until_nex_run(circuit_name)
+
     @app.post('/mode/{mode}')
     async def change_mode(mode:int):
         return circuit_scheduler.change_mode(mode)
@@ -48,8 +52,3 @@ def server(circuit_scheduler: CircuitScheduler):
         return circuit_scheduler.start_circuit(circuit_name, time_duration_seconds)
 
     uvicorn.run(app, host="0.0.0.0", port=8080, log_level="info")
-
-
-if __name__ == "__main__":
-    circuit_scheduler = CircuitScheduler()
-    server(circuit_scheduler)

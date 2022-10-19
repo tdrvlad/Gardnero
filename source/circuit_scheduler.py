@@ -1,14 +1,10 @@
 from event_scheduler import EventScheduler
-import time
 from resources.parameters import CONFIG_FILE
-import logging
 import os
 import yaml
 from source.electrical_gpio import GPIOHandler
 
 SECONDS_IN_DAY = 24 * 3600
-SECONDS_IN_DAY = 1
-
 
 class CircuitScheduler():
     def __init__(self, config_file=CONFIG_FILE):
@@ -137,13 +133,16 @@ class CircuitScheduler():
             )
         )
 
-if __name__ == '__main__':
-    circuit_scheduler = CircuitScheduler()
-    for _ in range(10):
-        print(circuit_scheduler.event_scheduler._lock)
-    time.sleep(10)
-    print('Changing.')
-    circuit_scheduler.change_circuit('test_1', time_period_days=5)
+    def get_circuit_time_until_nex_run(self, circuit_name):
+        if circuit_name not in self.events:
+            return f'Circuit {circuit_name} is not scheduled'
+        else:
+            event_id = self.events[circuit_name]
+            events_queue = [event for event in list(self.event_scheduler._queue) if event.id==event_id]
+            first_timestamp = min(events_queue, key=lambda x: x.time).time
+            seconds_until_next_run = first_timestamp - self.event_scheduler.timefunc()
+            return {'hours': int(seconds_until_next_run / 3600), 'seconds': int(seconds_until_next_run)}
+
 
 
 
