@@ -5,6 +5,7 @@ import yaml
 from source.electrical_gpio import GPIOHandler
 
 SECONDS_IN_DAY = 24 * 3600
+SECONDS_IN_DAY = 1
 
 class CircuitScheduler():
     def __init__(self, config_file=CONFIG_FILE):
@@ -29,11 +30,15 @@ class CircuitScheduler():
             )
         )
 
+    def delete_event(self, circuit_name:str):
+        event_id = self.events[circuit_name]
+        self.event_scheduler.cancel_recurring(event_id)
+        self.events.pop(circuit_name)
+
     def add_event(self, circuit_name):
         assert circuit_name in self.config['circuits'], f'Circuit {circuit_name} does not exist.'
         if circuit_name in self.events:
-            event_id = self.events[circuit_name]
-            self.event_scheduler.cancel_recurring(event_id)
+            self.delete_event(circuit_name)
         circuit_config = self.config['circuits'][circuit_name]
         event_id = self.event_scheduler.enter_recurring(
             interval=circuit_config['time_period_days'] * SECONDS_IN_DAY,
@@ -46,11 +51,9 @@ class CircuitScheduler():
         )
         self.events[circuit_name] = event_id
 
-
     def setup_events(self):
         for circuit_name in self.config['circuits'].keys():
             self.add_event(circuit_name)
-
 
     def add_circuit(self, circuit_name:str, pump_id:int, time_period_days:int, time_duration_seconds:int):
         if circuit_name in self.config['circuits']:
@@ -66,6 +69,16 @@ class CircuitScheduler():
             self.add_event(circuit_name)
             return self.config['circuits'][circuit_name]
 
+    def delete_circuit(self, circuit_name:str):
+        if circuit_name not in self.config['circuits']:
+            return f'Circuit {circuit_name} does not exist.'
+        else:
+            self.config['circuits'].pop(circuit_name)
+            self.save_config()
+
+            if circuit_name in self.events:
+                self.delete_event(circuit_name)
+            return f'Deleted circuit {circuit_name}'
 
     def change_circuit(self, circuit_name:str, time_period_days:int=0, time_duration_seconds:int=0):
         if circuit_name not in self.config['circuits']:
@@ -78,7 +91,6 @@ class CircuitScheduler():
             self.add_event(circuit_name)
             return self.config['circuits'][circuit_name]
 
-
     def read_config(self):
         if os.path.exists(self.config_file):
             with open(self.config_file, 'r') as f:
@@ -86,7 +98,6 @@ class CircuitScheduler():
         else:
             self.config = {'mode': 2, 'circuits': {}}
         return self.config
-
 
     def save_config(self):
         with open(self.config_file, 'w') as f:
@@ -142,6 +153,9 @@ class CircuitScheduler():
             first_timestamp = min(events_queue, key=lambda x: x.time).time
             seconds_until_next_run = first_timestamp - self.event_scheduler.timefunc()
             return {'hours': int(seconds_until_next_run / 3600), 'seconds': int(seconds_until_next_run)}
+
+    def get_events(self):
+        return list(self.events.keys())
 
 
 

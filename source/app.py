@@ -11,6 +11,10 @@ def server(circuit_scheduler: CircuitScheduler):
     async def add_circuit(circuit_name: str, pump_id: int, time_period_days: int, time_duration_seconds: int):
         return circuit_scheduler.add_circuit(circuit_name, pump_id, time_period_days, time_duration_seconds)
 
+    @app.post("/delete_circuit")
+    async def delete_circuit(circuit_name: str):
+        return circuit_scheduler.delete_circuit(circuit_name)
+
     @app.post("/change_circuit")
     async def change_circuit(circuit_name: str, time_period_days: int = 0, time_duration_seconds: int = 0):
         return circuit_scheduler.change_circuit(circuit_name, time_period_days, time_duration_seconds)
@@ -18,6 +22,10 @@ def server(circuit_scheduler: CircuitScheduler):
     @app.get("/circuits")
     async def get_circuits():
         return circuit_scheduler.get_circuits()
+
+    @app.get("/events")
+    async def get_events():
+        return circuit_scheduler.get_events()
 
     @app.get("/circuit_names")
     async def get_circuit_names():
@@ -32,7 +40,7 @@ def server(circuit_scheduler: CircuitScheduler):
         return circuit_scheduler.get_circuit(circuit_name)
 
     @app.get("/circuit/{circuit_name}/time_until_next_run")
-    async def get_circuit(circuit_name: str):
+    async def get_circuit_time_until_next_run(circuit_name: str):
         return circuit_scheduler.get_circuit_time_until_nex_run(circuit_name)
 
     @app.post('/mode/{mode}')
